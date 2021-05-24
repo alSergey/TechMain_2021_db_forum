@@ -1,11 +1,11 @@
 package user
 
-import "github.com/alSergey/TechMain_2021_db_forum/internal/app/user/model"
+import "github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 
 type UserRepository interface {
-	Insert(user *model.User) error
-	Update(user *model.User) error
+	Insert(user *models.User) error
+	Update(user *models.User) error
 
-	SelectByNickName(nickname string) (*model.User, error)
-	SelectByNickNameAndEmail(nickname string, email string) ([]*model.User, error)
+	SelectByNickName(nickname string) (*models.User, error)
+	SelectByNickNameAndEmail(nickname string, email string) ([]*models.User, error)
 }

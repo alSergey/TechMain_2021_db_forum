@@ -3,8 +3,8 @@ package postgres
 import (
 	"github.com/jackc/pgx"
 
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user/model"
 )
 
 type UserRepository struct {
@@ -17,7 +17,7 @@ func NewUserRepository(conn *pgx.ConnPool) user.UserRepository {
 	}
 }
 
-func (ur *UserRepository) Insert(user *model.User) error {
+func (ur *UserRepository) Insert(user *models.User) error {
 	_, err := ur.conn.Exec(`
 			INSERT INTO 
 			users(nickname, fullname, about, email) 
@@ -30,22 +30,24 @@ func (ur *UserRepository) Insert(user *model.User) error {
 	return err
 }
 
-func (ur *UserRepository) Update(user *model.User) error {
+func (ur *UserRepository) Update(user *models.User) error {
 	query := ur.conn.QueryRow(`
 			UPDATE users SET
-			fullname=$1,
-			about=$2,
-			email=$3
+			fullname=COALESCE(NULLIF($1, ''), fullname),
+			about=COALESCE(NULLIF($2, ''), about),
+			email=COALESCE(NULLIF($3, ''), email)
 			WHERE nickname=$4
-			RETURNING nickname`,
+			RETURNING nickname, fullname, about, email`,
 		user.FullName,
 		user.About,
 		user.Email,
 		user.NickName)
 
-	nickname := ""
 	err := query.Scan(
-		&nickname)
+		&user.NickName,
+		&user.FullName,
+		&user.About,
+		&user.Email)
 	if err != nil {
 		return err
 	}
@@ -53,14 +55,14 @@ func (ur *UserRepository) Update(user *model.User) error {
 	return nil
 }
 
-func (ur *UserRepository) SelectByNickName(nickname string) (*model.User, error) {
+func (ur *UserRepository) SelectByNickName(nickname string) (*models.User, error) {
 	query := ur.conn.QueryRow(`
-			SELECT * FROM users 
+			SELECT nickname, fullname, about, email FROM users 
 			WHERE nickname=$1 
 			LIMIT 1`,
 		nickname)
 
-	user := &model.User{}
+	user := &models.User{}
 	err := query.Scan(
 		&user.NickName,
 		&user.FullName,
@@ -73,9 +75,9 @@ func (ur *UserRepository) SelectByNickName(nickname string) (*model.User, error)
 	return user, nil
 }
 
-func (ur *UserRepository) SelectByNickNameAndEmail(nickname string, email string) ([]*model.User, error) {
+func (ur *UserRepository) SelectByNickNameAndEmail(nickname string, email string) ([]*models.User, error) {
 	query, err := ur.conn.Query(`
-			SELECT * FROM users
+			SELECT nickname, fullname, about, email FROM users
 			WHERE nickname=$1 or email=$2
 			LIMIT 2`,
 		nickname,
@@ -85,9 +87,9 @@ func (ur *UserRepository) SelectByNickNameAndEmail(nickname string, email string
 	}
 	defer query.Close()
 
-	var users []*model.User
+	var users []*models.User
 	for query.Next() {
-		user := &model.User{}
+		user := &models.User{}
 		err := query.Scan(
 			&user.NickName,
 			&user.FullName,

@@ -1,10 +1,11 @@
 package usecase
 
 import (
+	"github.com/jackc/pgx"
+
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user/model"
-	"github.com/jackc/pgx"
 )
 
 type UserUsecase struct {
@@ -17,7 +18,7 @@ func NewForumUsecase(userRepo user.UserRepository) user.UserUsecase {
 	}
 }
 
-func (uu *UserUsecase) Create(user *model.User) ([]*model.User, *errors.Error) {
+func (uu *UserUsecase) Create(user *models.User) ([]*models.User, *errors.Error) {
 	err := uu.userRepo.Insert(user)
 	if err != nil {
 		if pgErr, ok := err.(pgx.PgError); ok && pgErr.Code == "23505" {
@@ -35,7 +36,7 @@ func (uu *UserUsecase) Create(user *model.User) ([]*model.User, *errors.Error) {
 	return nil, nil
 }
 
-func (uu *UserUsecase) Edit(user *model.User) *errors.Error {
+func (uu *UserUsecase) Edit(user *models.User) *errors.Error {
 	err := uu.userRepo.Update(user)
 	if err != nil {
 		if pgErr, ok := err.(pgx.PgError); ok && pgErr.Code == "23505" {
@@ -48,7 +49,7 @@ func (uu *UserUsecase) Edit(user *model.User) *errors.Error {
 	return nil
 }
 
-func (uu *UserUsecase) GetByNickName(nickname string) (*model.User, *errors.Error) {
+func (uu *UserUsecase) GetByNickName(nickname string) (*models.User, *errors.Error) {
 	user, err := uu.userRepo.SelectByNickName(nickname)
 	if err != nil {
 		return nil, errors.Cause(errors.UserProfileNotExist)

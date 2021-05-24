@@ -2,13 +2,13 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/user/model"
 )
 
 type UserHandler struct {
@@ -31,12 +31,12 @@ func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 
-	user := &model.User{}
+	user := &models.User{NickName: nickname}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		return
 	}
-	user.NickName = nickname
+	defer r.Body.Close()
 
 	users, errE := uh.userUsecase.Create(user)
 	if errE != nil {
@@ -64,12 +64,12 @@ func (uh *UserHandler) UserProfilePOST(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 
-	user := &model.User{}
+	user := &models.User{NickName: nickname}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		return
 	}
-	user.NickName = nickname
+	defer r.Body.Close()
 
 	errE := uh.userUsecase.Edit(user)
 	if errE != nil {

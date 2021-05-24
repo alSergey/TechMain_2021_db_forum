@@ -13,6 +13,12 @@ const (
 	UserCreateExist
 	UserProfileNotExist
 	UserProfileConflict
+	ForumCreateNotExist
+	ForumCreateConflict
+	ForumDetailsNotExist
+	ForumCreateThreadNotExist
+	ForumCreateThreadConflict
+	ForumThreadsNotExist
 )
 
 type Error struct {
@@ -64,6 +70,34 @@ var CustomErrors = map[ErrorType]*Error{
 		ErrorCode: UserProfileConflict,
 		HttpError: http.StatusConflict,
 		Message:   "Conflict email\n",
+	},
+	ForumCreateNotExist: {
+		ErrorCode: ForumCreateNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find user\n",
+	},
+	ForumCreateConflict: {
+		ErrorCode: ForumCreateConflict,
+		HttpError: http.StatusConflict,
+	},
+	ForumDetailsNotExist: {
+		ErrorCode: ForumDetailsNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find forum\n",
+	},
+	ForumCreateThreadNotExist: {
+		ErrorCode: ForumCreateThreadNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find user\n",
+	},
+	ForumCreateThreadConflict: {
+		ErrorCode: ForumCreateThreadConflict,
+		HttpError: http.StatusConflict,
+	},
+	ForumThreadsNotExist: {
+		ErrorCode: ForumThreadsNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find forum\n",
 	},
 }
 
