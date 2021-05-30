@@ -40,23 +40,21 @@ func main() {
 	}
 
 	forumRepo := forumRepo.NewForumRepository(postgresDB.GetDatabase())
-	forumUsecase := forumUsecase.NewForumUsecase(forumRepo)
-	forumHandler := forumHandler.NewForumHandler(forumUsecase)
-
 	postRepo := postRepo.NewPostRepository(postgresDB.GetDatabase())
-	postUsecase := postUsecase.NewForumUsecase(postRepo)
-	postHandler := postHandler.NewPostHandler(postUsecase)
-
 	serviceRepo := serviceRepo.NewServiceRepository(postgresDB.GetDatabase())
-	serviceUsecase := serviceUsecase.NewForumUsecase(serviceRepo)
-	serviceHandler := serviceHandler.NewServiceHandler(serviceUsecase)
-
 	threadRepo := threadRepo.NewThreadRepository(postgresDB.GetDatabase())
-	threadUsecase := threadUsecase.NewForumUsecase(threadRepo)
-	threadHandler := threadHandler.NewThreadHandler(threadUsecase)
-
 	userRepo := userRepo.NewUserRepository(postgresDB.GetDatabase())
+
+	forumUsecase := forumUsecase.NewForumUsecase(forumRepo)
+	postUsecase := postUsecase.NewForumUsecase(postRepo, threadRepo)
+	serviceUsecase := serviceUsecase.NewForumUsecase(serviceRepo)
+	threadUsecase := threadUsecase.NewForumUsecase(threadRepo, forumRepo)
 	userUsecase := userUsecase.NewForumUsecase(userRepo)
+
+	forumHandler := forumHandler.NewForumHandler(forumUsecase, threadUsecase)
+	postHandler := postHandler.NewPostHandler(postUsecase)
+	serviceHandler := serviceHandler.NewServiceHandler(serviceUsecase)
+	threadHandler := threadHandler.NewThreadHandler(threadUsecase, postUsecase)
 	userHandler := userHandler.NewUserHandler(userUsecase)
 
 	router := mux.NewRouter()

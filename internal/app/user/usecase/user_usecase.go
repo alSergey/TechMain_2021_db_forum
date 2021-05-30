@@ -18,16 +18,16 @@ func NewForumUsecase(userRepo user.UserRepository) user.UserUsecase {
 	}
 }
 
-func (uu *UserUsecase) Create(user *models.User) ([]*models.User, *errors.Error) {
-	err := uu.userRepo.Insert(user)
+func (uu *UserUsecase) CreateUser(user *models.User) ([]*models.User, *errors.Error) {
+	err := uu.userRepo.InsertUser(user)
 	if err != nil {
 		if pgErr, ok := err.(pgx.PgError); ok && pgErr.Code == "23505" {
-			users, err := uu.userRepo.SelectByNickNameAndEmail(user.NickName, user.Email)
+			users, err := uu.userRepo.SelectUserByNickNameAndEmail(user.NickName, user.Email)
 			if err != nil {
 				return nil, errors.UnexpectedInternal(err)
 			}
 
-			return users, errors.Cause(errors.UserCreateExist)
+			return users, errors.Cause(errors.UserCreateConflict)
 		}
 
 		return nil, errors.UnexpectedInternal(err)
@@ -36,23 +36,23 @@ func (uu *UserUsecase) Create(user *models.User) ([]*models.User, *errors.Error)
 	return nil, nil
 }
 
-func (uu *UserUsecase) Edit(user *models.User) *errors.Error {
-	err := uu.userRepo.Update(user)
+func (uu *UserUsecase) EditUser(user *models.User) *errors.Error {
+	err := uu.userRepo.UpdateUser(user)
 	if err != nil {
 		if pgErr, ok := err.(pgx.PgError); ok && pgErr.Code == "23505" {
 			return errors.Cause(errors.UserProfileConflict)
 		}
 
-		return errors.Cause(errors.UserProfileNotExist)
+		return errors.Cause(errors.UserNotExist)
 	}
 
 	return nil
 }
 
-func (uu *UserUsecase) GetByNickName(nickname string) (*models.User, *errors.Error) {
-	user, err := uu.userRepo.SelectByNickName(nickname)
+func (uu *UserUsecase) GetUserByNickName(nickname string) (*models.User, *errors.Error) {
+	user, err := uu.userRepo.SelectUserByNickName(nickname)
 	if err != nil {
-		return nil, errors.Cause(errors.UserProfileNotExist)
+		return nil, errors.Cause(errors.UserNotExist)
 	}
 
 	return user, nil

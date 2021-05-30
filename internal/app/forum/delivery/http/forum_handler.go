@@ -9,16 +9,19 @@ import (
 
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/forum"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 )
 
 type ForumHandler struct {
-	forumUsecase forum.ForumUsecase
+	forumUsecase  forum.ForumUsecase
+	threadUsecase thread.ThreadUsecase
 }
 
-func NewForumHandler(forumUsecase forum.ForumUsecase) *ForumHandler {
+func NewForumHandler(forumUsecase forum.ForumUsecase, threadUsecase thread.ThreadUsecase) *ForumHandler {
 	return &ForumHandler{
-		forumUsecase: forumUsecase,
+		forumUsecase:  forumUsecase,
+		threadUsecase: threadUsecase,
 	}
 }
 
@@ -38,10 +41,10 @@ func (fh *ForumHandler) ForumCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	existForum, errE := fh.forumUsecase.Create(forum)
+	existForum, errE := fh.forumUsecase.CreateForum(forum)
 	if errE != nil {
 		switch errE.ErrorCode {
-		case errors.ForumCreateNotExist:
+		case errors.ForumNotExist:
 			errors.JSONError(errE, w)
 			return
 
@@ -58,7 +61,7 @@ func (fh *ForumHandler) ForumDetails(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 
-	forum, errE := fh.forumUsecase.GetBySlug(slug)
+	forum, errE := fh.forumUsecase.GetForumBySlug(slug)
 	if errE != nil {
 		errors.JSONError(errE, w)
 		return
@@ -80,10 +83,10 @@ func (fh *ForumHandler) ForumCreateThread(w http.ResponseWriter, r *http.Request
 
 	isSlug := thread.Slug != ""
 
-	existThread, errE := fh.forumUsecase.CreateThread(thread)
+	existThread, errE := fh.threadUsecase.CreateThread(thread)
 	if errE != nil {
 		switch errE.ErrorCode {
-		case errors.ForumCreateThreadNotExist:
+		case errors.ThreadNotExist:
 			errors.JSONError(errE, w)
 			return
 
@@ -117,7 +120,7 @@ func (fh *ForumHandler) ForumThreads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	threads, errE := fh.forumUsecase.GetThreadsBySlugAndParams(slug, threadsParams)
+	threads, errE := fh.threadUsecase.GetThreadsBySlugAndParams(slug, threadsParams)
 	if errE != nil {
 		errors.JSONError(errE, w)
 		return

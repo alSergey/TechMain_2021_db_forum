@@ -46,7 +46,7 @@ rm-go:
 
 ## test-func: run functional test
 test-func:
-	./tech-db-forum func -u http://localhost:5000/api -r report.html
+	./tech-db-forum func -u http://localhost:5000/api -r report.html -k
 
 ## test-fill: run fill db test
 test-fill:

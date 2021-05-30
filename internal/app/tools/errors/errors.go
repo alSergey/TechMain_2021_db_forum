@@ -10,15 +10,14 @@ type ErrorType uint8
 const (
 	WrongErrorCode ErrorType = iota + 1
 	InternalError
-	UserCreateExist
-	UserProfileNotExist
+	UserNotExist
+	ForumNotExist
+	ThreadNotExist
+	UserCreateConflict
 	UserProfileConflict
-	ForumCreateNotExist
 	ForumCreateConflict
-	ForumDetailsNotExist
-	ForumCreateThreadNotExist
 	ForumCreateThreadConflict
-	ForumThreadsNotExist
+	PostWrongThread
 )
 
 type Error struct {
@@ -57,47 +56,42 @@ var CustomErrors = map[ErrorType]*Error{
 		HttpError: http.StatusInternalServerError,
 		Message:   "something wrong",
 	},
-	UserCreateExist: {
-		ErrorCode: UserCreateExist,
-		HttpError: http.StatusConflict,
-	},
-	UserProfileNotExist: {
-		ErrorCode: UserProfileNotExist,
+	UserNotExist: {
+		ErrorCode: UserNotExist,
 		HttpError: http.StatusNotFound,
 		Message:   "Can't find user\n",
+	},
+	ForumNotExist: {
+		ErrorCode: ForumNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find forum\n",
+	},
+	ThreadNotExist: {
+		ErrorCode: ThreadNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find thread\n",
+	},
+	UserCreateConflict: {
+		ErrorCode: UserCreateConflict,
+		HttpError: http.StatusConflict,
 	},
 	UserProfileConflict: {
 		ErrorCode: UserProfileConflict,
 		HttpError: http.StatusConflict,
 		Message:   "Conflict email\n",
 	},
-	ForumCreateNotExist: {
-		ErrorCode: ForumCreateNotExist,
-		HttpError: http.StatusNotFound,
-		Message:   "Can't find user\n",
-	},
 	ForumCreateConflict: {
 		ErrorCode: ForumCreateConflict,
 		HttpError: http.StatusConflict,
-	},
-	ForumDetailsNotExist: {
-		ErrorCode: ForumDetailsNotExist,
-		HttpError: http.StatusNotFound,
-		Message:   "Can't find forum\n",
-	},
-	ForumCreateThreadNotExist: {
-		ErrorCode: ForumCreateThreadNotExist,
-		HttpError: http.StatusNotFound,
-		Message:   "Can't find user\n",
 	},
 	ForumCreateThreadConflict: {
 		ErrorCode: ForumCreateThreadConflict,
 		HttpError: http.StatusConflict,
 	},
-	ForumThreadsNotExist: {
-		ErrorCode: ForumThreadsNotExist,
-		HttpError: http.StatusNotFound,
-		Message:   "Can't find forum\n",
+	PostWrongThread: {
+		ErrorCode: PostWrongThread,
+		HttpError: http.StatusConflict,
+		Message:   "Parent post was created in another thread\n",
 	},
 }
 

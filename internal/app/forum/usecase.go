@@ -6,12 +6,7 @@ import (
 )
 
 type ForumUsecase interface {
-	Create(forum *models.Forum) (*models.Forum, *errors.Error)
+	CreateForum(forum *models.Forum) (*models.Forum, *errors.Error)
 
-	GetBySlug(slug string) (*models.Forum, *errors.Error)
-
-
-	CreateThread(thread *models.Thread) (*models.Thread, *errors.Error)
-
-	GetThreadsBySlugAndParams(slug string, params *models.ThreadParams) ([]*models.Thread, *errors.Error)
+	GetForumBySlug(slug string) (*models.Forum, *errors.Error)
 }

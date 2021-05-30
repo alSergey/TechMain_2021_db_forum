@@ -17,7 +17,7 @@ func NewUserRepository(conn *pgx.ConnPool) user.UserRepository {
 	}
 }
 
-func (ur *UserRepository) Insert(user *models.User) error {
+func (ur *UserRepository) InsertUser(user *models.User) error {
 	_, err := ur.conn.Exec(`
 			INSERT INTO 
 			users(nickname, fullname, about, email) 
@@ -30,7 +30,7 @@ func (ur *UserRepository) Insert(user *models.User) error {
 	return err
 }
 
-func (ur *UserRepository) Update(user *models.User) error {
+func (ur *UserRepository) UpdateUser(user *models.User) error {
 	query := ur.conn.QueryRow(`
 			UPDATE users SET
 			fullname=COALESCE(NULLIF($1, ''), fullname),
@@ -55,7 +55,7 @@ func (ur *UserRepository) Update(user *models.User) error {
 	return nil
 }
 
-func (ur *UserRepository) SelectByNickName(nickname string) (*models.User, error) {
+func (ur *UserRepository) SelectUserByNickName(nickname string) (*models.User, error) {
 	query := ur.conn.QueryRow(`
 			SELECT nickname, fullname, about, email FROM users 
 			WHERE nickname=$1 
@@ -75,7 +75,7 @@ func (ur *UserRepository) SelectByNickName(nickname string) (*models.User, error
 	return user, nil
 }
 
-func (ur *UserRepository) SelectByNickNameAndEmail(nickname string, email string) ([]*models.User, error) {
+func (ur *UserRepository) SelectUserByNickNameAndEmail(nickname string, email string) ([]*models.User, error) {
 	query, err := ur.conn.Query(`
 			SELECT nickname, fullname, about, email FROM users
 			WHERE nickname=$1 or email=$2

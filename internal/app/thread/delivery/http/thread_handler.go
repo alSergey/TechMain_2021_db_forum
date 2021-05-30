@@ -1,20 +1,25 @@
 package http
 
 import (
-	"net/http"
-
+	"encoding/json"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"github.com/gorilla/mux"
+	"net/http"
 
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
 )
 
 type ThreadHandler struct {
 	threadUsecase thread.ThreadUsecase
+	postUsecase   post.PostUsecase
 }
 
-func NewThreadHandler(threadUsecase thread.ThreadUsecase) *ThreadHandler {
+func NewThreadHandler(threadUsecase thread.ThreadUsecase, postUsecase post.PostUsecase) *ThreadHandler {
 	return &ThreadHandler{
 		threadUsecase: threadUsecase,
+		postUsecase:   postUsecase,
 	}
 }
 
@@ -27,15 +32,56 @@ func (th *ThreadHandler) Configure(r *mux.Router) {
 }
 
 func (th *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug_or_id"]
 
+	var posts []*models.Post
+	err := json.NewDecoder(r.Body).Decode(&posts)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+
+	resultPosts, errE := th.postUsecase.CreatePost(slug, posts)
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
+
+	errors.JSONSuccess(http.StatusCreated, resultPosts, w)
 }
 
 func (th *ThreadHandler) ThreadDetailsGET(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug_or_id"]
 
+	thread, errE := th.threadUsecase.GetThread(slug)
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
+
+	errors.JSONSuccess(http.StatusOK, thread, w)
 }
 
 func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug_or_id"]
 
+	thread := &models.Thread{Forum: slug}
+	err := json.NewDecoder(r.Body).Decode(&thread)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+
+	thread, errE := th.threadUsecase.UpdateThread(thread)
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
+
+	errors.JSONSuccess(http.StatusOK, thread, w)
 }
 
 func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
@@ -43,5 +89,21 @@ func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug_or_id"]
 
+	vote := &models.Vote{}
+	err := json.NewDecoder(r.Body).Decode(&vote)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+
+	thread, errE := th.threadUsecase.Vote(slug, vote)
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
+
+	errors.JSONSuccess(http.StatusOK, thread, w)
 }

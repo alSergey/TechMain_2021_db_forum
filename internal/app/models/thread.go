@@ -40,3 +40,10 @@ type ThreadParams struct {
 	Since string `json:"since"`
 	Desc  bool   `json:"desc"`
 }
+
+type Vote struct {
+	Id       int    `json:"id"`
+	Nickname string `json:"nickname"`
+	Voice    int    `json:"voice"`
+	ThreadId int    `json:"thread_id"`
+}

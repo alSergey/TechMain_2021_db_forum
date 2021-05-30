@@ -6,8 +6,8 @@ import (
 )
 
 type UserUsecase interface {
-	Create(user *models.User) ([]*models.User, *errors.Error)
-	Edit(user *models.User) *errors.Error
+	CreateUser(user *models.User) ([]*models.User, *errors.Error)
+	EditUser(user *models.User) *errors.Error
 
-	GetByNickName(nickname string) (*models.User, *errors.Error)
+	GetUserByNickName(nickname string) (*models.User, *errors.Error)
 }

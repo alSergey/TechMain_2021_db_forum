@@ -38,7 +38,7 @@ func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	users, errE := uh.userUsecase.Create(user)
+	users, errE := uh.userUsecase.CreateUser(user)
 	if errE != nil {
 		errors.JSONSuccess(errE.HttpError, users, w)
 		return
@@ -51,7 +51,7 @@ func (uh *UserHandler) UserProfileGET(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 
-	user, errE := uh.userUsecase.GetByNickName(nickname)
+	user, errE := uh.userUsecase.GetUserByNickName(nickname)
 	if errE != nil {
 		errors.JSONError(errE, w)
 		return
@@ -71,7 +71,7 @@ func (uh *UserHandler) UserProfilePOST(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	errE := uh.userUsecase.Edit(user)
+	errE := uh.userUsecase.EditUser(user)
 	if errE != nil {
 		errors.JSONError(errE, w)
 		return
