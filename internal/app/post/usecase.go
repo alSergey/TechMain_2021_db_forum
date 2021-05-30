@@ -7,4 +7,6 @@ import (
 
 type PostUsecase interface {
 	CreatePost(slug string, posts []*models.Post) ([]*models.Post, *errors.Error)
+
+	GetPostsBySlugAndParams(slug string, params *models.PostParams) ([]*models.Post, *errors.Error)
 }

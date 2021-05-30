@@ -55,3 +55,87 @@ func (pu *PostUsecase) CreatePost(slug string, posts []*models.Post) ([]*models.
 
 	return resultPosts, nil
 }
+
+func (pu *PostUsecase) GetPostsBySlugAndParams(slug string, params *models.PostParams) ([]*models.Post, *errors.Error) {
+	var id int
+	var posts []*models.Post
+
+	id, err := strconv.Atoi(slug)
+	if err != nil {
+		switch params.Sort {
+		case "flat":
+			posts, err = pu.postRepo.SelectPostByFlatSlug(slug, params)
+			if err != nil {
+				return nil, errors.UnexpectedInternal(err)
+			}
+
+		case "tree":
+			posts, err = pu.postRepo.SelectPostByTreeSlug(slug, params)
+			if err != nil {
+				return nil, errors.UnexpectedInternal(err)
+			}
+
+		case "parent_tree":
+			posts, err = pu.postRepo.SelectPostByParentTreeSlug(slug, params)
+			if err != nil {
+				return nil, errors.UnexpectedInternal(err)
+			}
+
+		default:
+			posts, err = pu.postRepo.SelectPostByFlatSlug(slug, params)
+			if err != nil {
+				return nil, errors.UnexpectedInternal(err)
+			}
+
+		}
+
+		if len(posts) == 0 {
+			_, err := pu.threadRepo.SelectThreadBySlug(slug)
+			if err != nil {
+				return nil, errors.Cause(errors.ThreadNotExist)
+			}
+
+			return []*models.Post{}, nil
+		}
+
+		return posts, nil
+	}
+
+	switch params.Sort {
+	case "flat":
+		posts, err = pu.postRepo.SelectPostByFlatId(id, params)
+		if err != nil {
+			return nil, errors.UnexpectedInternal(err)
+		}
+
+	case "tree":
+		posts, err = pu.postRepo.SelectPostByTreeId(id, params)
+		if err != nil {
+			return nil, errors.UnexpectedInternal(err)
+		}
+
+	case "parent_tree":
+		posts, err = pu.postRepo.SelectPostByParentTreeId(id, params)
+		if err != nil {
+			return nil, errors.UnexpectedInternal(err)
+		}
+
+	default:
+		posts, err = pu.postRepo.SelectPostByFlatId(id, params)
+		if err != nil {
+			return nil, errors.UnexpectedInternal(err)
+		}
+
+	}
+
+	if len(posts) == 0 {
+		_, err := pu.threadRepo.SelectThreadById(id)
+		if err != nil {
+			return nil, errors.Cause(errors.ThreadNotExist)
+		}
+
+		return []*models.Post{}, nil
+	}
+
+	return posts, nil
+}

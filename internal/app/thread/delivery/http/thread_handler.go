@@ -6,6 +6,7 @@ import (
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 	"net/http"
 
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
@@ -85,7 +86,24 @@ func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Reques
 }
 
 func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug_or_id"]
 
+	postParams := &models.PostParams{}
+	decoder := schema.NewDecoder()
+	decoder.IgnoreUnknownKeys(true)
+	err := decoder.Decode(postParams, r.URL.Query())
+	if err != nil {
+		return
+	}
+
+	posts, errE := th.postUsecase.GetPostsBySlugAndParams(slug, postParams)
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
+
+	errors.JSONSuccess(http.StatusOK, posts, w)
 }
 
 func (th *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
