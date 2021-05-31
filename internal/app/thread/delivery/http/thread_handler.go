@@ -96,6 +96,7 @@ func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	defer r.Body.Close()
 
 	posts, errE := th.postUsecase.GetPostsBySlugAndParams(slug, postParams)
 	if errE != nil {

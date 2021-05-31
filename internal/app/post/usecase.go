@@ -7,6 +7,9 @@ import (
 
 type PostUsecase interface {
 	CreatePost(slug string, posts []*models.Post) ([]*models.Post, *errors.Error)
+	UpdatePost(post *models.Post) (*models.Post, *errors.Error)
+
+	GetPost(id int, params *models.FullPostParams) (*models.FullPost, *errors.Error)
 
 	GetPostsBySlugAndParams(slug string, params *models.PostParams) ([]*models.Post, *errors.Error)
 }

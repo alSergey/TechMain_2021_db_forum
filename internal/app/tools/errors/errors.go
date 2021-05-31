@@ -13,6 +13,7 @@ const (
 	UserNotExist
 	ForumNotExist
 	ThreadNotExist
+	PostNotExist
 	UserCreateConflict
 	UserProfileConflict
 	ForumCreateConflict
@@ -70,6 +71,11 @@ var CustomErrors = map[ErrorType]*Error{
 		ErrorCode: ThreadNotExist,
 		HttpError: http.StatusNotFound,
 		Message:   "Can't find thread\n",
+	},
+	PostNotExist: {
+		ErrorCode: PostNotExist,
+		HttpError: http.StatusNotFound,
+		Message:   "Can't find post\n",
 	},
 	UserCreateConflict: {
 		ErrorCode: UserCreateConflict,

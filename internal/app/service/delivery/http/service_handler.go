@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -24,9 +25,21 @@ func (sh *ServiceHandler) Configure(r *mux.Router) {
 }
 
 func (sh *ServiceHandler) ServiceClear(w http.ResponseWriter, r *http.Request) {
+	errE := sh.serviceUsecase.ClearService()
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
 
+	w.WriteHeader(http.StatusOK)
 }
 
 func (sh *ServiceHandler) ServiceStatus(w http.ResponseWriter, r *http.Request) {
+	status, errE := sh.serviceUsecase.GetServiceStatus()
+	if errE != nil {
+		errors.JSONError(errE, w)
+		return
+	}
 
+	errors.JSONSuccess(http.StatusOK, status, w)
 }

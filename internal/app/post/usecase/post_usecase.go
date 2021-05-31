@@ -56,6 +56,15 @@ func (pu *PostUsecase) CreatePost(slug string, posts []*models.Post) ([]*models.
 	return resultPosts, nil
 }
 
+func (pu *PostUsecase) UpdatePost(post *models.Post) (*models.Post, *errors.Error) {
+	err := pu.postRepo.UpdatePost(post)
+	if err != nil {
+		return nil, errors.Cause(errors.PostNotExist)
+	}
+
+	return post, nil
+}
+
 func (pu *PostUsecase) GetPostsBySlugAndParams(slug string, params *models.PostParams) ([]*models.Post, *errors.Error) {
 	var id int
 	var posts []*models.Post
@@ -64,25 +73,25 @@ func (pu *PostUsecase) GetPostsBySlugAndParams(slug string, params *models.PostP
 	if err != nil {
 		switch params.Sort {
 		case "flat":
-			posts, err = pu.postRepo.SelectPostByFlatSlug(slug, params)
+			posts, err = pu.postRepo.SelectPostsByFlatSlug(slug, params)
 			if err != nil {
 				return nil, errors.UnexpectedInternal(err)
 			}
 
 		case "tree":
-			posts, err = pu.postRepo.SelectPostByTreeSlug(slug, params)
+			posts, err = pu.postRepo.SelectPostsByTreeSlug(slug, params)
 			if err != nil {
 				return nil, errors.UnexpectedInternal(err)
 			}
 
 		case "parent_tree":
-			posts, err = pu.postRepo.SelectPostByParentTreeSlug(slug, params)
+			posts, err = pu.postRepo.SelectPostsByParentTreeSlug(slug, params)
 			if err != nil {
 				return nil, errors.UnexpectedInternal(err)
 			}
 
 		default:
-			posts, err = pu.postRepo.SelectPostByFlatSlug(slug, params)
+			posts, err = pu.postRepo.SelectPostsByFlatSlug(slug, params)
 			if err != nil {
 				return nil, errors.UnexpectedInternal(err)
 			}
@@ -103,25 +112,25 @@ func (pu *PostUsecase) GetPostsBySlugAndParams(slug string, params *models.PostP
 
 	switch params.Sort {
 	case "flat":
-		posts, err = pu.postRepo.SelectPostByFlatId(id, params)
+		posts, err = pu.postRepo.SelectPostsByFlatId(id, params)
 		if err != nil {
 			return nil, errors.UnexpectedInternal(err)
 		}
 
 	case "tree":
-		posts, err = pu.postRepo.SelectPostByTreeId(id, params)
+		posts, err = pu.postRepo.SelectPostsByTreeId(id, params)
 		if err != nil {
 			return nil, errors.UnexpectedInternal(err)
 		}
 
 	case "parent_tree":
-		posts, err = pu.postRepo.SelectPostByParentTreeId(id, params)
+		posts, err = pu.postRepo.SelectPostsByParentTreeId(id, params)
 		if err != nil {
 			return nil, errors.UnexpectedInternal(err)
 		}
 
 	default:
-		posts, err = pu.postRepo.SelectPostByFlatId(id, params)
+		posts, err = pu.postRepo.SelectPostsByFlatId(id, params)
 		if err != nil {
 			return nil, errors.UnexpectedInternal(err)
 		}
@@ -138,4 +147,43 @@ func (pu *PostUsecase) GetPostsBySlugAndParams(slug string, params *models.PostP
 	}
 
 	return posts, nil
+}
+
+func (pu *PostUsecase) GetPost(id int, params *models.FullPostParams) (*models.FullPost, *errors.Error) {
+	paramType := models.GetPost
+
+	if params.Forum {
+		paramType = models.GetForum
+	}
+
+	if params.Thread {
+		paramType = models.GetThread
+
+		if params.Forum {
+			paramType = models.GetThreadForum
+		}
+	}
+
+	if params.User {
+		paramType = models.GetUser
+
+		if params.Thread {
+			paramType = models.GetUserThread
+		}
+
+		if params.Forum {
+			paramType = models.GetUserForum
+		}
+
+		if params.Thread && params.Forum {
+			paramType = models.GetUserThreadForum
+		}
+	}
+
+	fullPosts, err := pu.postRepo.SelectPostById(id, paramType)
+	if err != nil {
+		return nil, errors.Cause(errors.PostNotExist)
+	}
+
+	return fullPosts, nil
 }
