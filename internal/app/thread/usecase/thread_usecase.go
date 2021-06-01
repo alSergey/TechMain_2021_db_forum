@@ -1,14 +1,15 @@
 package usecase
 
 import (
-	"github.com/google/uuid"
-	"github.com/jackc/pgx"
 	"strconv"
+
+	"github.com/jackc/pgx"
 
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/forum"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/uuid"
 )
 
 type ThreadUsecase struct {
@@ -27,7 +28,7 @@ func (tu *ThreadUsecase) CreateThread(thread *models.Thread) (*models.Thread, *e
 	//fmt.Println("CreateThread input = ", thread)
 	if thread.Slug == "" {
 		//fmt.Println("CreateThread create slug")
-		thread.Slug = uuid.New().String()
+		thread.Slug = uuid.CreateSlug()
 	}
 
 	err := tu.threadRepo.InsertThread(thread)

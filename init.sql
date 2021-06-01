@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS CITEXT;
 CREATE TABLE users
 (
     nickname CITEXT PRIMARY KEY,
-    fullname TEXT NOT NULL,
+    fullname TEXT,
     about    TEXT,
     email    CITEXT UNIQUE
 );
@@ -22,10 +22,10 @@ CREATE TABLE forum
 CREATE TABLE thread
 (
     id      SERIAL PRIMARY KEY,
-    title   TEXT NOT NULL,
+    title   TEXT,
     author  CITEXT,
     forum   CITEXT,
-    message TEXT NOT NULL,
+    message TEXT,
     votes   INT                      DEFAULT 0,
     slug    CITEXT UNIQUE,
     created TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -38,8 +38,8 @@ CREATE TABLE post
 (
     id       BIGSERIAL PRIMARY KEY,
     parent   BIGINT                   DEFAULT 0,
-    author   CITEXT NOT NULL,
-    message  TEXT   NOT NULL,
+    author   CITEXT,
+    message  TEXT,
     isEdited BOOLEAN                  DEFAULT FALSE,
     forum    CITEXT,
     thread   INT,
@@ -55,34 +55,38 @@ CREATE TABLE post
 CREATE TABLE votes
 (
     id       BIGSERIAL PRIMARY KEY,
-    nickname CITEXT NOT NULL,
-    voice    INT    NOT NULL,
-    thread   INT    NOT NULL,
+    nickname CITEXT,
+    voice    INT,
+    thread   INT NOT NULL,
 
     FOREIGN KEY (nickname) REFERENCES "users" (nickname),
     FOREIGN KEY (thread) REFERENCES "thread" (id),
+
     UNIQUE (nickname, thread)
 );
 
-CREATE UNLOGGED TABLE forum_users
+CREATE TABLE forum_users
 (
-    nickname CITEXT NOT NULL,
-    fullname TEXT   NOT NULL,
+    nickname CITEXT,
+    fullname TEXT,
     about    TEXT,
     email    CITEXT,
-    forum    CITEXT NOT NULL,
+    forum    CITEXT,
 
     FOREIGN KEY (nickname) REFERENCES "users" (nickname),
     FOREIGN KEY (forum) REFERENCES "forum" (slug),
+
     UNIQUE (nickname, forum)
 );
+
+
 
 
 CREATE OR REPLACE FUNCTION afterInsertVote() RETURNS TRIGGER AS
 $after_insert_voice$
 BEGIN
     UPDATE thread SET votes=(votes + NEW.voice) WHERE id = NEW.thread;
-    return NEW;
+    RETURN NEW;
 END
 $after_insert_voice$ LANGUAGE plpgsql;
 
@@ -92,13 +96,15 @@ CREATE TRIGGER after_insert_voice
     FOR EACH ROW
 EXECUTE PROCEDURE afterInsertVote();
 
+
 CREATE OR REPLACE FUNCTION afterUpdateVote() RETURNS TRIGGER AS
 $after_update_voice$
 BEGIN
     IF OLD.voice <> NEW.voice THEN
         UPDATE thread SET votes=(votes + NEW.Voice * 2) WHERE id = NEW.thread;
     END IF;
-    return NEW;
+
+    RETURN NEW;
 END
 $after_update_voice$ LANGUAGE plpgsql;
 
@@ -109,6 +115,7 @@ CREATE TRIGGER after_update_voice
 EXECUTE PROCEDURE afterUpdateVote();
 
 
+
 CREATE OR REPLACE FUNCTION afterInsertThread() RETURNS TRIGGER AS
 $after_insert_thread$
 DECLARE
@@ -117,7 +124,7 @@ DECLARE
     author_about    TEXT;
     author_email    CITEXT;
 BEGIN
-    UPDATE forum SET Threads=(Threads + 1) WHERE slug = NEW.forum;
+    UPDATE forum SET threads=(threads + 1) WHERE slug = NEW.forum;
 
     SELECT nickname, fullname, about, email
     FROM users
@@ -128,7 +135,7 @@ BEGIN
     VALUES (author_nickname, author_fullname, author_about, author_email, NEW.forum)
     ON CONFLICT DO NOTHING;
 
-    return NEW;
+    RETURN NEW;
 END
 $after_insert_thread$ LANGUAGE plpgsql;
 
@@ -137,6 +144,8 @@ CREATE TRIGGER after_insert_thread
     ON thread
     FOR EACH ROW
 EXECUTE PROCEDURE afterInsertThread();
+
+
 
 CREATE OR REPLACE FUNCTION beforeInsertPost() RETURNS TRIGGER AS
 $before_insert_post$
@@ -158,6 +167,7 @@ BEGIN
     END IF;
 
     UPDATE forum SET posts=posts + 1 WHERE forum.slug = NEW.forum;
+
     RETURN NEW;
 END
 $before_insert_post$ LANGUAGE plpgsql;
@@ -186,7 +196,7 @@ BEGIN
     VALUES (author_nickname, author_fullname, author_about, author_email, NEW.forum)
     ON CONFLICT DO NOTHING;
 
-    return NEW;
+    RETURN NEW;
 END
 $after_insert_post$ LANGUAGE plpgsql;
 

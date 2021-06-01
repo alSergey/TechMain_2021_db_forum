@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/jackc/pgx"
 
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
 )
 

@@ -2,12 +2,12 @@ package http
 
 import (
 	"fmt"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/service"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 )
 
 type ServiceHandler struct {

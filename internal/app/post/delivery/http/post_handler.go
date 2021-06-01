@@ -3,15 +3,15 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 )
 
 type PostHandler struct {
@@ -64,8 +64,10 @@ func (ph *PostHandler) PostDetailsGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	result := models.GetResultPost(post)
+
 	//fmt.Println("PostDetailsGET result post = ", post)
-	errors.JSONSuccess(http.StatusOK, post, w)
+	errors.JSONSuccess(http.StatusOK, result, w)
 }
 
 func (ph *PostHandler) PostDetailsPOST(w http.ResponseWriter, r *http.Request) {

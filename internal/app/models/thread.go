@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/uuid"
+)
 
 type Thread struct {
 	Id      int       `json:"id"`
@@ -33,6 +37,27 @@ func ConvertThread(thread *Thread) *ThreadWSlug {
 		thread.Votes,
 		thread.Created,
 	}
+}
+
+func GetResultThread(thread *Thread) interface{} {
+	if uuid.IsCreatedSlug(thread.Slug) {
+		return ConvertThread(thread)
+	}
+
+	return thread
+}
+
+func GetResultThreads(threads []*Thread) []interface{} {
+	var result []interface{}
+	for _, thr := range threads {
+		if uuid.IsCreatedSlug(thr.Slug) {
+			result = append(result, ConvertThread(thr))
+		} else {
+			result = append(result, thr)
+		}
+	}
+
+	return result
 }
 
 type ThreadParams struct {

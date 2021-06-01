@@ -3,11 +3,13 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+
+	"github.com/jackc/pgx"
+
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/null"
-	"github.com/jackc/pgx"
-	"strings"
 )
 
 type PostRepository struct {

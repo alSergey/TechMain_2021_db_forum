@@ -169,6 +169,13 @@ func (fh *ForumHandler) ForumThreads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(threads) == 0 {
+		errors.JSONSuccess(http.StatusOK, threads, w)
+		return
+	}
+
+	result := models.GetResultThreads(threads)
+
 	//fmt.Println("ForumThreads threads = ", threads)
-	errors.JSONSuccess(http.StatusOK, threads, w)
+	errors.JSONSuccess(http.StatusOK, result, w)
 }

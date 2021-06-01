@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/uuid"
 )
 
 type Post struct {
@@ -33,6 +35,33 @@ type FullPost struct {
 	Author *User   `json:"author"`
 	Forum  *Forum  `json:"forum"`
 	Thread *Thread `json:"thread"`
+}
+
+type FullPostWSlug struct {
+	Post   *Post        `json:"post"`
+	Author *User        `json:"author"`
+	Forum  *Forum       `json:"forum"`
+	Thread *ThreadWSlug `json:"thread"`
+}
+
+func GetResultPost(post *FullPost) interface{} {
+	var result interface{}
+	result = post
+
+	if post.Thread != nil {
+		if uuid.IsCreatedSlug(post.Thread.Slug) {
+			result = &FullPostWSlug{
+				Post:   post.Post,
+				Author: post.Author,
+				Forum:  post.Forum,
+				Thread: ConvertThread(post.Thread),
+			}
+		}
+	} else {
+		result = post
+	}
+
+	return result
 }
 
 type GetPostType uint8

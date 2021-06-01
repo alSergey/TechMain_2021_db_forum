@@ -1,12 +1,14 @@
 package usecase
 
 import (
+	"strconv"
+
+	"github.com/jackc/pgx"
+
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
-	"github.com/jackc/pgx"
-	"strconv"
 )
 
 type PostUsecase struct {

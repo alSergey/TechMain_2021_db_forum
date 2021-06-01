@@ -3,14 +3,15 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
-	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/schema"
 	"net/http"
 
+	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
+
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/models"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/post"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/thread"
+	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 )
 
 type ThreadHandler struct {
@@ -71,8 +72,10 @@ func (th *ThreadHandler) ThreadDetailsGET(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	result := models.GetResultThread(thread)
+
 	//fmt.Println("ThreadDetailsGET result thread = ", thread)
-	errors.JSONSuccess(http.StatusOK, thread, w)
+	errors.JSONSuccess(http.StatusOK, result, w)
 }
 
 func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Request) {
@@ -96,8 +99,10 @@ func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	result := models.GetResultThread(resultThread)
+
 	//fmt.Println("ThreadDetailsPOST result thread = ", resultThread)
-	errors.JSONSuccess(http.StatusOK, resultThread, w)
+	errors.JSONSuccess(http.StatusOK, result, w)
 }
 
 func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +153,8 @@ func (th *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	result := models.GetResultThread(thread)
+
 	//fmt.Println("ThreadVote result thread = ", thread)
-	errors.JSONSuccess(http.StatusOK, thread, w)
+	errors.JSONSuccess(http.StatusOK, result, w)
 }
