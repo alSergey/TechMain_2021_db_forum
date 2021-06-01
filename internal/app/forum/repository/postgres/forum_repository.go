@@ -63,3 +63,70 @@ func (fr *ForumRepository) SelectForumBySlug(slug string) (*models.Forum, error)
 
 	return forum, err
 }
+
+func (fr *ForumRepository) SelectForumUsersBySlugAndParams(slug string, params *models.ForumParams) ([]*models.User, error) {
+	var query *pgx.Rows
+	var err error
+
+	if params.Since == "" {
+		if params.Desc {
+			query, err = fr.conn.Query(`
+					SELECT nickname, fullname, about, email FROM forum_users
+					WHERE forum=$1
+					ORDER BY nickname DESC
+					LIMIT NULLIF($2, 0)`,
+				slug,
+				params.Limit)
+		} else {
+			query, err = fr.conn.Query(`
+					SELECT nickname, fullname, about, email FROM forum_users
+					WHERE forum=$1
+					ORDER BY nickname ASC
+					LIMIT NULLIF($2, 0)`,
+				slug,
+				params.Limit)
+		}
+	} else {
+		if params.Desc {
+			query, err = fr.conn.Query(`
+					SELECT nickname, fullname, about, email FROM forum_users
+					WHERE forum=$1 AND nickname < $2
+					ORDER BY nickname DESC
+					LIMIT NULLIF($3, 0)`,
+				slug,
+				params.Since,
+				params.Limit)
+		} else {
+			query, err = fr.conn.Query(`
+					SELECT nickname, fullname, about, email FROM forum_users
+					WHERE forum=$1 AND nickname > $2
+					ORDER BY nickname ASC
+					LIMIT NULLIF($3, 0)`,
+				slug,
+				params.Since,
+				params.Limit)
+		}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer query.Close()
+
+	var users []*models.User
+	for query.Next() {
+		user := &models.User{}
+		err := query.Scan(
+			&user.NickName,
+			&user.FullName,
+			&user.About,
+			&user.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}

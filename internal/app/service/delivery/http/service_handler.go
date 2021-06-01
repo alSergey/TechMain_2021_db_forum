@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/errors"
 	"net/http"
 
@@ -27,19 +28,23 @@ func (sh *ServiceHandler) Configure(r *mux.Router) {
 func (sh *ServiceHandler) ServiceClear(w http.ResponseWriter, r *http.Request) {
 	errE := sh.serviceUsecase.ClearService()
 	if errE != nil {
+		fmt.Println("ServiceClear error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
 
+	fmt.Println("ServiceClear ok")
 	w.WriteHeader(http.StatusOK)
 }
 
 func (sh *ServiceHandler) ServiceStatus(w http.ResponseWriter, r *http.Request) {
 	status, errE := sh.serviceUsecase.GetServiceStatus()
 	if errE != nil {
+		fmt.Println("ServiceStatus error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
 
+	fmt.Println("ServiceStatus status = ", status)
 	errors.JSONSuccess(http.StatusOK, status, w)
 }

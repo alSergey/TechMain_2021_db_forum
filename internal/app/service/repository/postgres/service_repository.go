@@ -39,7 +39,7 @@ func (sr *ServiceRepository) SelectService() (*models.Status, error) {
 }
 
 func (sr *ServiceRepository) TruncateService() error {
-	_, err := sr.conn.Exec(`TRUNCATE users, forum, thread, post, votes`)
+	_, err := sr.conn.Exec(`TRUNCATE users, forum, thread, post, votes, forum_users`)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -28,8 +29,10 @@ func (uh *UserHandler) Configure(r *mux.Router) {
 }
 
 func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("UserCreate")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
+	//fmt.Println("UserCreate nickname = ", nickname)
 
 	user := &models.User{NickName: nickname}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -37,32 +40,41 @@ func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	//fmt.Println("UserCreate user = ", user)
 
-	users, errE := uh.userUsecase.CreateUser(user)
+	existUser, errE := uh.userUsecase.CreateUser(user)
 	if errE != nil {
-		errors.JSONSuccess(errE.HttpError, users, w)
+		//fmt.Println("UserCreate exist user = ", existUser)
+		errors.JSONSuccess(errE.HttpError, existUser, w)
 		return
 	}
+	//fmt.Println("UserCreate result user = ", user)
 
 	errors.JSONSuccess(http.StatusCreated, user, w)
 }
 
 func (uh *UserHandler) UserProfileGET(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("UserProfileGET")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
+	//fmt.Println("UserProfileGET nickname = ", nickname)
 
 	user, errE := uh.userUsecase.GetUserByNickName(nickname)
 	if errE != nil {
+		//fmt.Println("UserProfileGET error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
+	//fmt.Println("UserProfileGET result user = ", user)
 
 	errors.JSONSuccess(http.StatusOK, user, w)
 }
 
 func (uh *UserHandler) UserProfilePOST(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("UserProfilePOST")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
+	//fmt.Println("UserProfilePOST nickname = ", nickname)
 
 	user := &models.User{NickName: nickname}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -70,12 +82,15 @@ func (uh *UserHandler) UserProfilePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	//fmt.Println("UserProfilePOST user = ", user)
 
 	errE := uh.userUsecase.EditUser(user)
 	if errE != nil {
+		//fmt.Println("UserProfilePOST error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
+	//fmt.Println("UserProfilePOST result user = ", user)
 
 	errors.JSONSuccess(http.StatusOK, user, w)
 }

@@ -190,8 +190,7 @@ func (tr *ThreadRepository) SelectThreadsBySlugAndParams(slug string, params *mo
 			&thread.Message,
 			&thread.Votes,
 			&thread.Slug,
-			&thread.Created,
-		)
+			&thread.Created)
 		if err != nil {
 			return nil, err
 		}

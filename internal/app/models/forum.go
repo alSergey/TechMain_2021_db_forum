@@ -7,3 +7,9 @@ type Forum struct {
 	Posts   int    `json:"posts"`
 	Threads int    `json:"threads"`
 }
+
+type ForumParams struct {
+	Limit int    `json:"limit"`
+	Since string `json:"since"`
+	Desc  bool   `json:"desc"`
+}
