@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS CITEXT;
 
 CREATE TABLE users
 (
@@ -64,55 +64,82 @@ CREATE TABLE votes
     UNIQUE (nickname, thread)
 );
 
+CREATE UNLOGGED TABLE forum_users
+(
+    nickname CITEXT NOT NULL,
+    fullname TEXT   NOT NULL,
+    about    TEXT,
+    email    CITEXT,
+    forum    CITEXT NOT NULL,
 
-CREATE OR REPLACE FUNCTION insertVote() RETURNS TRIGGER AS
-$update_thread$
+    FOREIGN KEY (nickname) REFERENCES "users" (nickname),
+    FOREIGN KEY (forum) REFERENCES "forum" (slug),
+    UNIQUE (nickname, forum)
+);
+
+
+CREATE OR REPLACE FUNCTION afterInsertVote() RETURNS TRIGGER AS
+$after_insert_voice$
 BEGIN
     UPDATE thread SET votes=(votes + NEW.voice) WHERE id = NEW.thread;
     return NEW;
 END
-$update_thread$ LANGUAGE plpgsql;
+$after_insert_voice$ LANGUAGE plpgsql;
 
-CREATE TRIGGER insert_voice
+CREATE TRIGGER after_insert_voice
     AFTER INSERT
     ON votes
     FOR EACH ROW
-EXECUTE PROCEDURE insertVote();
+EXECUTE PROCEDURE afterInsertVote();
 
-CREATE OR REPLACE FUNCTION updateVote() RETURNS TRIGGER AS
-$update_thread$
+CREATE OR REPLACE FUNCTION afterUpdateVote() RETURNS TRIGGER AS
+$after_update_voice$
 BEGIN
     IF OLD.voice <> NEW.voice THEN
         UPDATE thread SET votes=(votes + NEW.Voice * 2) WHERE id = NEW.thread;
     END IF;
     return NEW;
 END
-$update_thread$ LANGUAGE plpgsql;
+$after_update_voice$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_voice
+CREATE TRIGGER after_update_voice
     AFTER UPDATE
     ON votes
     FOR EACH ROW
-EXECUTE PROCEDURE updateVote();
+EXECUTE PROCEDURE afterUpdateVote();
 
 
-CREATE OR REPLACE FUNCTION updateThread() RETURNS TRIGGER AS
-$update_forum$
+CREATE OR REPLACE FUNCTION afterInsertThread() RETURNS TRIGGER AS
+$after_insert_thread$
+DECLARE
+    author_nickname CITEXT;
+    author_fullname TEXT;
+    author_about    TEXT;
+    author_email    CITEXT;
 BEGIN
     UPDATE forum SET Threads=(Threads + 1) WHERE slug = NEW.forum;
+
+    SELECT nickname, fullname, about, email
+    FROM users
+    WHERE nickname = NEW.author
+    INTO author_nickname, author_fullname, author_about, author_email;
+
+    INSERT INTO forum_users (nickname, fullname, about, email, forum)
+    VALUES (author_nickname, author_fullname, author_about, author_email, NEW.forum)
+    ON CONFLICT DO NOTHING;
+
     return NEW;
 END
-$update_forum$ LANGUAGE plpgsql;
+$after_insert_thread$ LANGUAGE plpgsql;
 
-CREATE TRIGGER insert_thread
+CREATE TRIGGER after_insert_thread
     AFTER INSERT
     ON thread
     FOR EACH ROW
-EXECUTE PROCEDURE updateThread();
+EXECUTE PROCEDURE afterInsertThread();
 
-
-CREATE OR REPLACE FUNCTION updatePath() RETURNS TRIGGER AS
-$update_path$
+CREATE OR REPLACE FUNCTION beforeInsertPost() RETURNS TRIGGER AS
+$before_insert_post$
 DECLARE
     parent_path         BIGINT[];
     first_parent_thread INT;
@@ -133,10 +160,38 @@ BEGIN
     UPDATE forum SET posts=posts + 1 WHERE forum.slug = NEW.forum;
     RETURN NEW;
 END
-$update_path$ LANGUAGE plpgsql;
+$before_insert_post$ LANGUAGE plpgsql;
 
-CREATE TRIGGER insert_post
+CREATE TRIGGER before_insert_post
     BEFORE INSERT
     ON post
     FOR EACH ROW
-EXECUTE PROCEDURE updatePath();
+EXECUTE PROCEDURE beforeInsertPost();
+
+
+CREATE OR REPLACE FUNCTION afterInsertPost() RETURNS TRIGGER AS
+$after_insert_post$
+DECLARE
+    author_nickname CITEXT;
+    author_fullname TEXT;
+    author_about    TEXT;
+    author_email    CITEXT;
+BEGIN
+    SELECT nickname, fullname, about, email
+    FROM users
+    WHERE nickname = NEW.author
+    INTO author_nickname, author_fullname, author_about, author_email;
+
+    INSERT INTO forum_users (nickname, fullname, about, email, forum)
+    VALUES (author_nickname, author_fullname, author_about, author_email, NEW.forum)
+    ON CONFLICT DO NOTHING;
+
+    return NEW;
+END
+$after_insert_post$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_insert_post
+    AFTER INSERT
+    ON post
+    FOR EACH ROW
+EXECUTE PROCEDURE afterInsertPost();
