@@ -557,7 +557,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetThread:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, t.id, t.title, t.author, t.forum, t.message, t.votes, t.slug, t.created FROM post as p
-	   		INNER JOIN thread t on t.id = p.thread
+	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
 				LIMIT 1`,
 			id)
@@ -565,7 +565,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetForum:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, f.title, f.user, f.slug, f.posts, f.threads FROM post as p
-	   		INNER JOIN forum f on f.slug = p.forum
+	   			INNER JOIN forum f on f.slug = p.forum
 				WHERE p.id = $1
 				LIMIT 1`,
 			id)
@@ -573,7 +573,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetUserThread:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, u.nickname, u.fullname, u.about, u.email, t.id, t.title, t.author, t.forum, t.message, t.votes, t.slug, t.created FROM post as p
-	   		INNER JOIN users u on u.nickname = p.author
+	   			INNER JOIN users u on u.nickname = p.author
 				INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
 				LIMIT 1`,
@@ -582,8 +582,8 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetUserForum:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, u.nickname, u.fullname, u.about, u.email, f.title, f.user, f.slug, f.posts, f.threads FROM post as p
-	   		INNER JOIN users u on u.nickname = p.author
-	   		INNER JOIN forum f on f.slug = p.forum
+	   			INNER JOIN users u on u.nickname = p.author
+	   			INNER JOIN forum f on f.slug = p.forum
 				WHERE p.id = $1
 				LIMIT 1`,
 			id)
@@ -591,8 +591,8 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetThreadForum:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, f.title, f.user, f.slug, f.posts, f.threads, t.id, t.title, t.author, t.forum, t.message, t.votes, t.slug, t.created FROM post as p
-	   		INNER JOIN forum f on f.slug = p.forum
-	   		INNER JOIN thread t on t.id = p.thread
+	   			INNER JOIN forum f on f.slug = p.forum
+	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
 				LIMIT 1`,
 			id)
@@ -600,9 +600,9 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	case models.GetUserThreadForum:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, u.nickname, u.fullname, u.about, u.email, f.title, f.user, f.slug, f.posts, f.threads, t.id, t.title, t.author, t.forum, t.message, t.votes, t.slug, t.created FROM post as p
-	   		INNER JOIN users u on u.nickname = p.author
-	   		INNER JOIN forum f on f.slug = p.forum
-	   		INNER JOIN thread t on t.id = p.thread
+	   			INNER JOIN users u on u.nickname = p.author
+	   			INNER JOIN forum f on f.slug = p.forum
+	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
 				LIMIT 1`,
 			id)
