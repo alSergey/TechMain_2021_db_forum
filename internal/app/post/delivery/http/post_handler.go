@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,7 +29,7 @@ func (ph *PostHandler) Configure(r *mux.Router) {
 }
 
 func (ph *PostHandler) PostDetailsGET(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("PostDetailsGET")
+	//fmt.Println("PostDetailsGET")
 	vars := mux.Vars(r)
 	strId := vars["id"]
 	//fmt.Println("PostDetailsGET strId = ", strId)
@@ -71,7 +70,7 @@ func (ph *PostHandler) PostDetailsGET(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph *PostHandler) PostDetailsPOST(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("PostDetailsPOST")
+	//fmt.Println("PostDetailsPOST")
 	vars := mux.Vars(r)
 	strId := vars["id"]
 	//fmt.Println("PostDetailsPOST strId = ", strId)

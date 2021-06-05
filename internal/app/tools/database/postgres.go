@@ -18,7 +18,7 @@ func NewPostgres(dataSourceName string) (*Postgres, error) {
 
 	poolConfig := pgx.ConnPoolConfig{
 		ConnConfig:     pgxConnConfig,
-		MaxConnections: 200,
+		MaxConnections: 100,
 		AfterConnect:   nil,
 		AcquireTimeout: 0,
 	}

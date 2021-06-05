@@ -26,6 +26,11 @@ run-postgres:
 stop-postgres:
 	docker stop $$(docker ps -a -q --filter name=postgres)
 
+## restart-postgres: restart postgres docker container
+restart-postgres:
+	make stop-postgres
+	make run postgres
+
 ## rm-postgres: rm postgres docker container
 rm-postgres:
 	docker rm postgres
@@ -38,6 +43,11 @@ run-go:
 ## stop-go: stop go docker container
 stop-go:
 	docker stop $$(docker ps -a -q --filter name=golang)
+
+## restart-go: restart go docker container
+restart-go:
+	make stop-go
+	make run go
 
 ## rm-go: rm go docker container
 rm-go:

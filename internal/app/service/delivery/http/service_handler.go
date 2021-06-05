@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -26,25 +25,27 @@ func (sh *ServiceHandler) Configure(r *mux.Router) {
 }
 
 func (sh *ServiceHandler) ServiceClear(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println("ServiceClear")
 	errE := sh.serviceUsecase.ClearService()
 	if errE != nil {
-		fmt.Println("ServiceClear error = ", errE)
+		//fmt.Println("ServiceClear error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
 
-	fmt.Println("ServiceClear ok")
+	//fmt.Println("ServiceClear ok")
 	w.WriteHeader(http.StatusOK)
 }
 
 func (sh *ServiceHandler) ServiceStatus(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println("ServiceStatus")
 	status, errE := sh.serviceUsecase.GetServiceStatus()
 	if errE != nil {
-		fmt.Println("ServiceStatus error = ", errE)
+		//fmt.Println("ServiceStatus error = ", errE)
 		errors.JSONError(errE, w)
 		return
 	}
 
-	fmt.Println("ServiceStatus status = ", status)
+	//fmt.Println("ServiceStatus status = ", status)
 	errors.JSONSuccess(http.StatusOK, status, w)
 }

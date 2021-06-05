@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -29,7 +28,7 @@ func (uh *UserHandler) Configure(r *mux.Router) {
 }
 
 func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("UserCreate")
+	//fmt.Println("UserCreate")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 	//fmt.Println("UserCreate nickname = ", nickname)
@@ -54,7 +53,7 @@ func (uh *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) UserProfileGET(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("UserProfileGET")
+	//fmt.Println("UserProfileGET")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 	//fmt.Println("UserProfileGET nickname = ", nickname)
@@ -71,7 +70,7 @@ func (uh *UserHandler) UserProfileGET(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) UserProfilePOST(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("UserProfilePOST")
+	//fmt.Println("UserProfilePOST")
 	vars := mux.Vars(r)
 	nickname := vars["nickname"]
 	//fmt.Println("UserProfilePOST nickname = ", nickname)

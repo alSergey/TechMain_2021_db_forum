@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -35,7 +34,7 @@ func (th *ThreadHandler) Configure(r *mux.Router) {
 }
 
 func (th *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ThreadCreate")
+	//fmt.Println("ThreadCreate")
 	vars := mux.Vars(r)
 	slug := vars["slug_or_id"]
 	//fmt.Println("ThreadCreate slug or id = ", slug)
@@ -60,7 +59,7 @@ func (th *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th *ThreadHandler) ThreadDetailsGET(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ThreadDetailsGET")
+	//fmt.Println("ThreadDetailsGET")
 	vars := mux.Vars(r)
 	slug := vars["slug_or_id"]
 	//fmt.Println("ThreadDetailsGET slug or id = ", slug)
@@ -79,7 +78,7 @@ func (th *ThreadHandler) ThreadDetailsGET(w http.ResponseWriter, r *http.Request
 }
 
 func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ThreadDetailsPOST")
+	//fmt.Println("ThreadDetailsPOST")
 	vars := mux.Vars(r)
 	slug := vars["slug_or_id"]
 	//fmt.Println("ThreadDetailsPOST slug or id = ", slug)
@@ -106,7 +105,7 @@ func (th *ThreadHandler) ThreadDetailsPOST(w http.ResponseWriter, r *http.Reques
 }
 
 func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ThreadPosts")
+	//fmt.Println("ThreadPosts")
 	vars := mux.Vars(r)
 	slug := vars["slug_or_id"]
 	//fmt.Println("ThreadPosts slug or id = ", slug)
@@ -133,7 +132,7 @@ func (th *ThreadHandler) ThreadPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ThreadVote")
+	//fmt.Println("ThreadVote")
 	vars := mux.Vars(r)
 	slug := vars["slug_or_id"]
 	//fmt.Println("ThreadVote slug or id = ", slug)

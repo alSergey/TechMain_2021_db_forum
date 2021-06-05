@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -35,7 +34,7 @@ func (fh *ForumHandler) Configure(r *mux.Router) {
 }
 
 func (fh *ForumHandler) ForumCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ForumCreate")
+	//fmt.Println("ForumCreate")
 	forum := &models.Forum{}
 	err := json.NewDecoder(r.Body).Decode(&forum)
 	if err != nil {
@@ -64,7 +63,7 @@ func (fh *ForumHandler) ForumCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fh *ForumHandler) ForumDetails(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ForumDetails")
+	//fmt.Println("ForumDetails")
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 	//fmt.Println("ForumDetails slug = ", slug)
@@ -81,7 +80,7 @@ func (fh *ForumHandler) ForumDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fh *ForumHandler) ForumCreateThread(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ForumCreateThread")
+	//fmt.Println("ForumCreateThread")
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 	//fmt.Println("ForumCreateThread slug = ", slug)
@@ -122,7 +121,7 @@ func (fh *ForumHandler) ForumCreateThread(w http.ResponseWriter, r *http.Request
 }
 
 func (fh *ForumHandler) ForumUsers(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ForumUsers")
+	//fmt.Println("ForumUsers")
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 	//fmt.Println("ForumUsers slug = ", slug)
@@ -148,7 +147,7 @@ func (fh *ForumHandler) ForumUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fh *ForumHandler) ForumThreads(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ForumThreads")
+	//fmt.Println("ForumThreads")
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 	//fmt.Println("ForumThreads slug = ", slug)
