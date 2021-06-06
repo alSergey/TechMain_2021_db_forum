@@ -1,5 +1,6 @@
 package models
 
+//easyjson:json
 type Forum struct {
 	Title   string `json:"title"`
 	User    string `json:"user"`
@@ -8,6 +9,7 @@ type Forum struct {
 	Threads int    `json:"threads"`
 }
 
+//easyjson:json
 type ForumParams struct {
 	Limit int    `json:"limit"`
 	Since string `json:"since"`

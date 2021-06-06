@@ -6,6 +6,7 @@ import (
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/uuid"
 )
 
+//easyjson:json
 type Post struct {
 	Id       int       `json:"id"`
 	Parent   int64     `json:"parent"`
@@ -17,6 +18,7 @@ type Post struct {
 	Created  time.Time `json:"created"`
 }
 
+//easyjson:json
 type PostParams struct {
 	Limit int    `json:"limit"`
 	Since int    `json:"since"`
@@ -24,12 +26,14 @@ type PostParams struct {
 	Desc  bool   `json:"desc"`
 }
 
+//easyjson:json
 type FullPostParams struct {
 	User   bool `json:"user"`
 	Forum  bool `json:"forum"`
 	Thread bool `json:"thread"`
 }
 
+//easyjson:json
 type FullPost struct {
 	Post   *Post   `json:"post"`
 	Author *User   `json:"author"`
@@ -37,6 +41,7 @@ type FullPost struct {
 	Thread *Thread `json:"thread"`
 }
 
+//easyjson:json
 type FullPostWSlug struct {
 	Post   *Post        `json:"post"`
 	Author *User        `json:"author"`

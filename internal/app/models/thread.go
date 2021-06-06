@@ -6,6 +6,7 @@ import (
 	"github.com/alSergey/TechMain_2021_db_forum/internal/app/tools/uuid"
 )
 
+//easyjson:json
 type Thread struct {
 	Id      int       `json:"id"`
 	Title   string    `json:"title"`
@@ -17,6 +18,7 @@ type Thread struct {
 	Created time.Time `json:"created"`
 }
 
+//easyjson:json
 type ThreadWSlug struct {
 	Id      int       `json:"id"`
 	Title   string    `json:"title"`
@@ -60,12 +62,14 @@ func GetResultThreads(threads []*Thread) []interface{} {
 	return result
 }
 
+//easyjson:json
 type ThreadParams struct {
 	Limit int    `json:"limit"`
 	Since string `json:"since"`
 	Desc  bool   `json:"desc"`
 }
 
+//easyjson:json
 type Vote struct {
 	Id       int    `json:"id"`
 	Nickname string `json:"nickname"`

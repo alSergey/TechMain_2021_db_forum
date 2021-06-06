@@ -1,5 +1,6 @@
 package models
 
+//easyjson:json
 type User struct {
 	NickName string `json:"nickname"`
 	FullName string `json:"fullname"`
