@@ -23,7 +23,7 @@ func (sr *ServiceRepository) SelectService() (*models.Status, error) {
 		(SELECT COUNT(*) FROM users) as userCount,
  		(SELECT COUNT(*) FROM forum) as forumCount,
 		(SELECT COUNT(*) FROM thread) as threadCount,
-		(SELECT COUNT(*) FROM post) as postCount`)
+		(SELECT COUNT(*) FROM post) as postCount;`)
 
 	status := &models.Status{}
 	err := row.Scan(
@@ -39,7 +39,7 @@ func (sr *ServiceRepository) SelectService() (*models.Status, error) {
 }
 
 func (sr *ServiceRepository) TruncateService() error {
-	_, err := sr.conn.Exec(`TRUNCATE users, forum, thread, post, votes, forum_users`)
+	_, err := sr.conn.Exec(`TRUNCATE users, forum, thread, post, votes, forum_users;`)
 	if err != nil {
 		return err
 	}

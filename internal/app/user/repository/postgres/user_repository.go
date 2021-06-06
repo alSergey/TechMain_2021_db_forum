@@ -21,7 +21,7 @@ func (ur *UserRepository) InsertUser(user *models.User) error {
 	_, err := ur.conn.Exec(`
 			INSERT INTO 
 			users(nickname, fullname, about, email) 
-			VALUES ($1, $2, $3, $4)`,
+			VALUES ($1, $2, $3, $4);`,
 		user.NickName,
 		user.FullName,
 		user.About,
@@ -37,7 +37,7 @@ func (ur *UserRepository) UpdateUser(user *models.User) error {
 			about=COALESCE(NULLIF($2, ''), about),
 			email=COALESCE(NULLIF($3, ''), email)
 			WHERE nickname=$4
-			RETURNING nickname, fullname, about, email`,
+			RETURNING nickname, fullname, about, email;`,
 		user.FullName,
 		user.About,
 		user.Email,
@@ -59,7 +59,7 @@ func (ur *UserRepository) SelectUserByNickName(nickname string) (*models.User, e
 	query := ur.conn.QueryRow(`
 			SELECT nickname, fullname, about, email FROM users 
 			WHERE nickname=$1 
-			LIMIT 1`,
+			LIMIT 1;`,
 		nickname)
 
 	user := &models.User{}
@@ -79,7 +79,7 @@ func (ur *UserRepository) SelectUserByNickNameAndEmail(nickname string, email st
 	query, err := ur.conn.Query(`
 			SELECT nickname, fullname, about, email FROM users
 			WHERE nickname=$1 or email=$2
-			LIMIT 2`,
+			LIMIT 2;`,
 		nickname,
 		email)
 	if err != nil {

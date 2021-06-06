@@ -37,7 +37,7 @@ func (pr *PostRepository) InsertPost(threadId int, forumSlug string, posts []*mo
 	}
 
 	query = strings.TrimSuffix(query, ",")
-	query += ` RETURNING id, parent, author, message, isEdited, forum, thread, created`
+	query += ` RETURNING id, parent, author, message, isEdited, forum, thread, created;`
 
 	rows, err := pr.conn.Query(query, values...)
 	if err != nil {
@@ -86,7 +86,7 @@ func (pr *PostRepository) UpdatePost(post *models.Post) error {
 			SET message=COALESCE(NULLIF($1, ''), message),
 			isEdited = CASE WHEN $1 = '' OR message = $1 THEN isEdited ELSE true END
 			WHERE id = $2
-			RETURNING id, parent, author, message, isEdited, forum, thread, created`,
+			RETURNING id, parent, author, message, isEdited, forum, thread, created;`,
 		post.Message,
 		post.Id)
 
@@ -118,7 +118,7 @@ func (pr *PostRepository) SelectPostsByFlatSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1)
 					ORDER BY id DESC
-					LIMIT NULLIF($2, 0)`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		} else {
@@ -126,7 +126,7 @@ func (pr *PostRepository) SelectPostsByFlatSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1)
 					ORDER BY id ASC 
-					LIMIT NULLIF($2, 0)`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		}
@@ -136,7 +136,7 @@ func (pr *PostRepository) SelectPostsByFlatSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1) AND id < $2 
 					ORDER BY id DESC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -145,7 +145,7 @@ func (pr *PostRepository) SelectPostsByFlatSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1) AND id > $2
 					ORDER BY id ASC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -191,7 +191,7 @@ func (pr *PostRepository) SelectPostsByTreeSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1)
  					ORDER BY path DESC, id DESC 
-					LIMIT $2`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		} else {
@@ -199,7 +199,7 @@ func (pr *PostRepository) SelectPostsByTreeSlug(slug string, params *models.Post
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = (SELECT id from thread where slug = $1) 
 					ORDER BY path ASC, id ASC
-					LIMIT $2`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		}
@@ -207,18 +207,18 @@ func (pr *PostRepository) SelectPostsByTreeSlug(slug string, params *models.Post
 		if params.Desc {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE thread = (SELECT id from thread where slug = $1) AND PATH < (SELECT path FROM post WHERE id = $2)
+					WHERE thread = (SELECT id from thread where slug = $1) AND path < (SELECT path FROM post WHERE id = $2)
 					ORDER BY path DESC, id DESC
-					LIMIT $3`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE thread = (SELECT id from thread where slug = $1) AND PATH > (SELECT path FROM post WHERE id = $2)
+					WHERE thread = (SELECT id from thread where slug = $1) AND path > (SELECT path FROM post WHERE id = $2)
 					ORDER BY path ASC, id ASC
-					LIMIT $3`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -263,14 +263,14 @@ func (pr *PostRepository) SelectPostsByParentTreeSlug(slug string, params *model
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL ORDER BY id DESC LIMIT $2)
-					ORDER BY path[1] DESC, path, id`,
+					ORDER BY path[1] DESC, path ASC, id ASC;`,
 				slug,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL ORDER BY id LIMIT $2)
-					ORDER BY path, id`,
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL ORDER BY id ASC LIMIT $2)
+					ORDER BY path ASC, id ASC;`,
 				slug,
 				params.Limit)
 		}
@@ -278,18 +278,18 @@ func (pr *PostRepository) SelectPostsByParentTreeSlug(slug string, params *model
 		if params.Desc {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL AND PATH[1] <
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL AND path[1] <
 					(SELECT path[1] FROM post WHERE id = $2) ORDER BY id DESC LIMIT $3)
-					ORDER BY path[1] DESC, path, id`,
+					ORDER BY path[1] DESC, path ASC, id ASC;`,
 				slug,
 				params.Since,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL AND PATH[1] >
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = (SELECT id from thread where slug = $1) AND parent IS NULL AND path[1] >
 					(SELECT path[1] FROM post WHERE id = $2) ORDER BY id ASC LIMIT $3) 
-					ORDER BY path, id`,
+					ORDER BY path ASC, id ASC;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -335,7 +335,7 @@ func (pr *PostRepository) SelectPostsByFlatId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1
 					ORDER BY id DESC
-					LIMIT NULLIF($2, 0)`,
+					LIMIT $2;`,
 				id,
 				params.Limit)
 		} else {
@@ -343,7 +343,7 @@ func (pr *PostRepository) SelectPostsByFlatId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1
 					ORDER BY id ASC 
-					LIMIT NULLIF($2, 0)`,
+					LIMIT $2;`,
 				id,
 				params.Limit)
 		}
@@ -353,7 +353,7 @@ func (pr *PostRepository) SelectPostsByFlatId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1 AND id < $2 
 					ORDER BY id DESC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT $3;`,
 				id,
 				params.Since,
 				params.Limit)
@@ -362,7 +362,7 @@ func (pr *PostRepository) SelectPostsByFlatId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1 AND id > $2
 					ORDER BY id ASC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT $3;`,
 				id,
 				params.Since,
 				params.Limit)
@@ -408,7 +408,7 @@ func (pr *PostRepository) SelectPostsByTreeId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1 
 					ORDER BY path DESC, id DESC 
-					LIMIT $2`,
+					LIMIT $2;`,
 				id,
 				params.Limit)
 		} else {
@@ -416,7 +416,7 @@ func (pr *PostRepository) SelectPostsByTreeId(id int, params *models.PostParams)
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE thread = $1 
 					ORDER BY path ASC, id ASC
-					LIMIT $2`,
+					LIMIT $2;`,
 				id,
 				params.Limit)
 		}
@@ -424,18 +424,18 @@ func (pr *PostRepository) SelectPostsByTreeId(id int, params *models.PostParams)
 		if params.Desc {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE thread = $1 AND PATH < (SELECT path FROM post WHERE id = $2)
+					WHERE thread = $1 AND path < (SELECT path FROM post WHERE id = $2)
 					ORDER BY path DESC, id DESC
-					LIMIT $3`,
+					LIMIT $3;`,
 				id,
 				params.Since,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE thread = $1 AND PATH > (SELECT path FROM post WHERE id = $2)
+					WHERE thread = $1 AND path > (SELECT path FROM post WHERE id = $2)
 					ORDER BY path ASC, id ASC
-					LIMIT $3`,
+					LIMIT $3;`,
 				id,
 				params.Since,
 				params.Limit)
@@ -480,14 +480,14 @@ func (pr *PostRepository) SelectPostsByParentTreeId(id int, params *models.PostP
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
 					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL ORDER BY id DESC LIMIT $2)
-					ORDER BY path[1] DESC, path, id`,
+					ORDER BY path[1] DESC, path ASC, id ASC;`,
 				id,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL ORDER BY id LIMIT $2)
-					ORDER BY path, id`,
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL ORDER BY id ASC LIMIT $2)
+					ORDER BY path ASC, id ASC;`,
 				id,
 				params.Limit)
 		}
@@ -495,18 +495,18 @@ func (pr *PostRepository) SelectPostsByParentTreeId(id int, params *models.PostP
 		if params.Desc {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL AND PATH[1] <
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL AND path[1] <
 					(SELECT path[1] FROM post WHERE id = $2) ORDER BY id DESC LIMIT $3)
-					ORDER BY path[1] DESC, path, id`,
+					ORDER BY path[1] DESC, path ASC, id ASC;`,
 				id,
 				params.Since,
 				params.Limit)
 		} else {
 			rows, err = pr.conn.Query(`
 					SELECT id, parent, author, message, isEdited, forum, thread, created FROM post
-					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL AND PATH[1] >
+					WHERE path[1] IN (SELECT id FROM post WHERE thread = $1 AND parent IS NULL AND path[1] >
 					(SELECT path[1] FROM post WHERE id = $2) ORDER BY id ASC LIMIT $3) 
-					ORDER BY path, id`,
+					ORDER BY path ASC, id ASC;`,
 				id,
 				params.Since,
 				params.Limit)
@@ -551,7 +551,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, u.nickname, u.fullname, u.about, u.email FROM post as p
 				INNER JOIN users u on u.nickname = p.author
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetThread:
@@ -559,7 +559,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, t.id, t.title, t.author, t.forum, t.message, t.votes, t.slug, t.created FROM post as p
 	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetForum:
@@ -567,7 +567,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created, f.title, f.user, f.slug, f.posts, f.threads FROM post as p
 	   			INNER JOIN forum f on f.slug = p.forum
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetUserThread:
@@ -576,7 +576,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	   			INNER JOIN users u on u.nickname = p.author
 				INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetUserForum:
@@ -585,7 +585,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	   			INNER JOIN users u on u.nickname = p.author
 	   			INNER JOIN forum f on f.slug = p.forum
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetThreadForum:
@@ -594,7 +594,7 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	   			INNER JOIN forum f on f.slug = p.forum
 	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetUserThreadForum:
@@ -604,14 +604,14 @@ func (pr *PostRepository) SelectPostById(id int, params models.GetPostType) (*mo
 	   			INNER JOIN forum f on f.slug = p.forum
 	   			INNER JOIN thread t on t.id = p.thread
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	case models.GetPost:
 		row = pr.conn.QueryRow(`
 				SELECT p.id, p.parent, p.author, p.message, p.isEdited, p.forum, p.thread, p.created FROM post as p
 				WHERE p.id = $1
-				LIMIT 1`,
+				LIMIT 1;`,
 			id)
 
 	}

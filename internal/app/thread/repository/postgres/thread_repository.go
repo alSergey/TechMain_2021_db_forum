@@ -28,7 +28,7 @@ func (tr *ThreadRepository) InsertThread(thread *models.Thread) error {
 			$4,
 			$5,
 			$6)
-			RETURNING id, title, author, forum, message, votes, slug, created`,
+			RETURNING id, title, author, forum, message, votes, slug, created;`,
 		thread.Title,
 		thread.Author,
 		thread.Forum,
@@ -58,7 +58,7 @@ func (tr *ThreadRepository) UpdateThreadBySlug(slug string, thread *models.Threa
 			SET title=COALESCE(NULLIF($1, ''), title), 
 			message=COALESCE(NULLIF($2, ''), message)
 			WHERE slug=$3
-			RETURNING id, title, author, forum, message, votes, slug, created`,
+			RETURNING id, title, author, forum, message, votes, slug, created;`,
 		thread.Title,
 		thread.Message,
 		slug)
@@ -85,7 +85,7 @@ func (tr *ThreadRepository) UpdateThreadById(id int, thread *models.Thread) erro
 			SET title=COALESCE(NULLIF($1, ''), title), 
 			message=COALESCE(NULLIF($2, ''), message)
 			WHERE id=$3
-			RETURNING id, title, author, forum, message, votes, slug, created`,
+			RETURNING id, title, author, forum, message, votes, slug, created;`,
 		thread.Title,
 		thread.Message,
 		id)
@@ -140,7 +140,7 @@ func (tr *ThreadRepository) SelectThreadsBySlugAndParams(slug string, params *mo
 					SELECT id, title, author, forum, message, votes, slug, created FROM thread
 					WHERE forum=$1
 					ORDER BY created DESC
-					LIMIT $2`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		} else {
@@ -148,7 +148,7 @@ func (tr *ThreadRepository) SelectThreadsBySlugAndParams(slug string, params *mo
 					SELECT id, title, author, forum, message, votes, slug, created FROM thread
 					WHERE forum=$1
 					ORDER BY created ASC
-					LIMIT $2`,
+					LIMIT $2;`,
 				slug,
 				params.Limit)
 		}
@@ -158,7 +158,7 @@ func (tr *ThreadRepository) SelectThreadsBySlugAndParams(slug string, params *mo
 					SELECT id, title, author, forum, message, votes, slug, created FROM thread
 					WHERE forum=$1 AND created <= $2
 					ORDER BY created DESC
-					LIMIT $3`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -167,7 +167,7 @@ func (tr *ThreadRepository) SelectThreadsBySlugAndParams(slug string, params *mo
 					SELECT id, title, author, forum, message, votes, slug, created FROM thread
 					WHERE forum=$1 AND created >= $2
 					ORDER BY created ASC
-					LIMIT $3`,
+					LIMIT $3;`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -229,7 +229,7 @@ func (tr *ThreadRepository) InsertVoteBySlug(slug string, vote *models.Vote) err
 	_, err := tr.conn.Exec(`
 			INSERT INTO 
 			votes(nickname, voice, thread) 
-			VALUES ($1, $2, (SELECT id from thread where slug = $3))`,
+			VALUES ($1, $2, (SELECT id from thread where slug = $3));`,
 		vote.Nickname,
 		vote.Voice,
 		slug)
@@ -244,7 +244,7 @@ func (tr *ThreadRepository) UpdateVoteBySlug(slug string, vote *models.Vote) err
 	_, err := tr.conn.Exec(`
 			INSERT INTO 
 			votes(nickname, voice, thread) 
-			VALUES ($1, $2, (SELECT id from thread where slug = $3))`,
+			VALUES ($1, $2, (SELECT id from thread where slug = $3));`,
 		vote.Nickname,
 		vote.Voice,
 		slug)
@@ -259,7 +259,7 @@ func (tr *ThreadRepository) InsertVoteById(vote *models.Vote) error {
 	_, err := tr.conn.Exec(`
 			INSERT INTO 
 			votes(nickname, voice, thread) 
-			VALUES ($1, $2, $3)`,
+			VALUES ($1, $2, $3);`,
 		vote.Nickname,
 		vote.Voice,
 		vote.ThreadId)

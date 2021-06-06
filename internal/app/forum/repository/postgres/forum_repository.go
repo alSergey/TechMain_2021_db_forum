@@ -25,7 +25,7 @@ func (fr *ForumRepository) InsertForum(forum *models.Forum) error {
 			$1, 
 			COALESCE((SELECT nickname FROM users WHERE nickname = $2), $2), 
 			$3)
-			RETURNING title, "user", slug, posts, threads`,
+			RETURNING title, "user", slug, posts, threads;`,
 		forum.Title,
 		forum.User,
 		forum.Slug)
@@ -74,7 +74,7 @@ func (fr *ForumRepository) SelectForumUsersBySlugAndParams(slug string, params *
 					SELECT nickname, fullname, about, email FROM forum_users
 					WHERE forum=$1
 					ORDER BY nickname DESC
-					LIMIT NULLIF($2, 0)`,
+					LIMIT NULLIF($2, 0);`,
 				slug,
 				params.Limit)
 		} else {
@@ -82,7 +82,7 @@ func (fr *ForumRepository) SelectForumUsersBySlugAndParams(slug string, params *
 					SELECT nickname, fullname, about, email FROM forum_users
 					WHERE forum=$1
 					ORDER BY nickname ASC
-					LIMIT NULLIF($2, 0)`,
+					LIMIT NULLIF($2, 0);`,
 				slug,
 				params.Limit)
 		}
@@ -92,7 +92,7 @@ func (fr *ForumRepository) SelectForumUsersBySlugAndParams(slug string, params *
 					SELECT nickname, fullname, about, email FROM forum_users
 					WHERE forum=$1 AND nickname < $2
 					ORDER BY nickname DESC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT NULLIF($3, 0);`,
 				slug,
 				params.Since,
 				params.Limit)
@@ -101,7 +101,7 @@ func (fr *ForumRepository) SelectForumUsersBySlugAndParams(slug string, params *
 					SELECT nickname, fullname, about, email FROM forum_users
 					WHERE forum=$1 AND nickname > $2
 					ORDER BY nickname ASC
-					LIMIT NULLIF($3, 0)`,
+					LIMIT NULLIF($3, 0);`,
 				slug,
 				params.Since,
 				params.Limit)

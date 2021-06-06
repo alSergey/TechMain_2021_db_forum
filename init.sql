@@ -62,7 +62,7 @@ CREATE UNLOGGED TABLE votes
     FOREIGN KEY (nickname) REFERENCES "users" (nickname),
     FOREIGN KEY (thread) REFERENCES "thread" (id),
 
-    UNIQUE (nickname, thread)
+    UNIQUE (thread, nickname)
 );
 
 CREATE UNLOGGED TABLE forum_users
@@ -76,7 +76,7 @@ CREATE UNLOGGED TABLE forum_users
     FOREIGN KEY (nickname) REFERENCES "users" (nickname),
     FOREIGN KEY (forum) REFERENCES "forum" (slug),
 
-    UNIQUE (nickname, forum)
+    UNIQUE (forum, nickname)
 );
 
 
@@ -207,31 +207,41 @@ EXECUTE PROCEDURE afterInsertPost();
 
 
 
-CREATE INDEX all_users_forum ON forum_users (nickname, fullname, about, email);
-CLUSTER forum_users USING all_users_forum;
-CREATE INDEX nickname_users_forum ON forum_users using hash (nickname);
-CREATE INDEX f_a_e_users_forum ON forum_users (fullname, about, email);
+CREATE INDEX IF NOT EXISTS users_nickname ON users USING hash (nickname);
+CREATE INDEX IF NOT EXISTS users_email ON users USING hash (email);
 
-CREATE INDEX IF NOT EXISTS user_nickname ON users using hash (nickname);
-CREATE INDEX IF NOT EXISTS user_email ON users using hash (email);
-CREATE INDEX IF NOT EXISTS forum_slug ON forum using hash (slug);
-CREATE UNIQUE INDEX IF NOT EXISTS forum_users_unique on forum_users (forum, nickname);
--- CLUSTER users_forum USING forum_users_unique;
 
-CREATE INDEX IF NOT EXISTS thr_slug ON thread using hash (slug);
-CREATE INDEX IF NOT EXISTS thr_date ON thread (created);
-CREATE INDEX IF NOT EXISTS thr_forum ON thread using hash (forum);
-CREATE INDEX IF NOT EXISTS thr_forum_date ON thread (forum, created);
+CREATE INDEX IF NOT EXISTS forum_slug ON forum USING hash (slug);
 
-CREATE INDEX IF NOT EXISTS post_id_path on post (id, (path[1]));
-CREATE INDEX IF NOT EXISTS post_thread_id_path1_parent on post (thread, id, (path[1]), parent);
+
+CREATE INDEX IF NOT EXISTS thread_slug ON thread USING hash (slug);
+CREATE INDEX IF NOT EXISTS thread_forum ON thread USING hash (forum);
+CREATE INDEX IF NOT EXISTS thread_created ON thread (created);
+CREATE INDEX IF NOT EXISTS thread_forum_created ON thread (forum, created);
+
+
+CREATE INDEX IF NOT EXISTS post_id_path1 on post (id, (path[1]));
+CREATE INDEX IF NOT EXISTS post_path1 on post ((path[1]));
+CREATE INDEX IF NOT EXISTS post_thread ON post (thread);
+
+CREATE INDEX IF NOT EXISTS post_thread_id on post (thread, id);
+
 CREATE INDEX IF NOT EXISTS post_thread_path_id on post (thread, path, id);
 
-CREATE INDEX IF NOT EXISTS post_path1 on post ((path[1]));
-CREATE INDEX IF NOT EXISTS post_thread_id on post (thread, id);
-CREATE INDEX IF NOT EXISTS post_thr_id ON post (thread);
+CREATE INDEX IF NOT EXISTS post_thread_id_path1_parent on post (thread, id, (path[1]), parent);
+CREATE INDEX IF NOT EXISTS post_path1_path_id ON post ((path[1]) DESC, path, id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS vote_unique on votes (nickname, thread);
 
-CREATE INDEX IF NOT EXISTS post_path1_path_id_desc ON post ((path[1]) DESC, path, id);
-CREATE INDEX IF NOT EXISTS post_path1_path_id_asc ON post ((path[1]) DESC, path, id);
+CREATE UNIQUE INDEX IF NOT EXISTS votes_nickname_thread_nickname_unique on votes (thread, nickname);
+
+
+CREATE INDEX forum_users_nickname_fullname_about_email ON forum_users (nickname, fullname, about, email);
+CLUSTER forum_users USING forum_users_nickname_fullname_about_email;
+CREATE INDEX forum_users_nickname ON forum_users USING hash (nickname);
+CREATE INDEX forum_users_fullname_about_email ON forum_users (fullname, about, email);
+
+CREATE UNIQUE INDEX IF NOT EXISTS forum_users_forum_nickname_unique on forum_users (forum, nickname);
+
+
+VACUUM;
+VACUUM ANALYSE;
